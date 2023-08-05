@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 enum Education {
   highSchool = "زیر دیپلم",
   diploma = "دیپلم",
@@ -12,4 +14,19 @@ export interface Person {
   lastName?: string;
   education: Education;
   status: boolean;
+}
+
+export interface CustomButtonProps {
+  title: string;
+  onClick?: () => void;
+  styles?: {};
+  color?: string;
+  size?: string;
+}
+
+export interface CustomModalProps {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
 }

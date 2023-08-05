@@ -1,9 +1,19 @@
 import { createTheme } from "@mui/material/styles";
+import rtlPlugin from "stylis-plugin-rtl";
+import { prefixer } from "stylis";
+import createCache from "@emotion/cache";
 
 const theme = createTheme({
+  direction: 'rtl', 
   typography: {
-    fontFamily: "Shabnam, sans-serif", // Replace "YourDesiredFont" with the desired font family name
+    fontFamily: "Shabnam, sans-serif", 
   },
 });
 
-export default theme;
+const cacheRtl = createCache({
+  key: "muirtl",
+  stylisPlugins: [prefixer, rtlPlugin],
+});
+
+
+export { theme,cacheRtl};
