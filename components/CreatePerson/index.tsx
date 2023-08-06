@@ -68,6 +68,8 @@ const CreatePerson = ({ updatePersonsList }: CreatePersonProps) => {
     if (error) {
       toast.error("متاسفانه خطایی رخ داده است");
     }
+
+    return;
   }, [error, isSuccess]);
 
   return (

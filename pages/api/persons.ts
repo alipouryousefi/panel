@@ -8,7 +8,7 @@ const dataFilePath = path.join(process.cwd(), "/public/PERSON.TXT");
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   // /api/person method = GET with pagination
   if (req.method === "GET") {
-    const data: Person[] = JSON.parse(fs.readFileSync(dataFilePath, "utf-8"));
+    const data: Person[] = JSON.parse(fs.readFileSync(dataFilePath, "utf-8")).reverse();
     const page = Number(req.query.page) || 1;
     const startIndex = (page - 1) * 5;
     const endIndex = startIndex + 5;
