@@ -1,18 +1,21 @@
 import { useState } from "react";
 import axios, { AxiosResponse, AxiosError, Method } from "axios";
 
-// Define the return type of the useToggle hook
+// Define a hook for toggle
 type UseToggleReturnType = [boolean, () => void];
 
 const useToggle = (initialState: boolean): UseToggleReturnType => {
   const [state, setState] = useState<boolean>(initialState);
-  const toggle = () => {
-    setState((prevState) => !prevState);
+  const toggle = (nextValue?: boolean) => {
+    setState((prevState) =>
+      nextValue === true || nextValue === false ? nextValue : !prevState
+    );
   };
 
   return [state, toggle];
 };
 
+// Define a hook for sending request
 type ApiResponse<T> = AxiosResponse<T> | AxiosError<T>;
 
 const useApi = () => {

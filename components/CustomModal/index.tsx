@@ -17,9 +17,9 @@ const CustomModal: React.FC<CustomModalProps> = ({
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent>{children}asdads</DialogContent>
+      <DialogContent>{children}</DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>انصراف</Button>
       </DialogActions>
     </Dialog>
   );

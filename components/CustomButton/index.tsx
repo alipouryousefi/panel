@@ -9,6 +9,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   styles,
   color,
   size,
+  type = "button",
+  disabled = false
 }) => {
   return (
     <Box>
@@ -18,6 +20,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         sx={{ ...styles }}
         color={color}
         size={size}
+        type={type}
+        disabled={disabled}
       >
         {title}
       </Button>

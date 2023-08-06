@@ -1,35 +1,51 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import {
+  Typography,
   TextField,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Button,
   RadioGroup,
   FormControlLabel,
-  ThemeProvider,
   Radio,
   Box,
+  FormLabel,
 } from "@mui/material";
-import theme from "@/styles/styles";
+import { isNationalIdValid } from "@/utils/isNationalCodeValid";
+import CustomButton from "../CustomButton";
+import { useApi } from "@/hook";
+import { CreatePersonProps, Person } from "@/types";
+import Loading from "../Loading";
+import { toast } from "react-toastify";
+import { BlurOverlayContainer, TableWrapper } from "@/styles/styles";
 
 // Define validation schema using Yup
 const schema = yup.object().shape({
-  firstName: yup.string().required("First name is required"),
-  education: yup.string().required("Education is required"),
+  firstName: yup.string().required("نام نمی تواند خالی باشد."),
+  education: yup.string().required("تحصیلات نمی تواند خالی باشید"),
   nationalCode: yup
     .string()
-    .required("National code is required")
-    .matches(/^\d{10}$/, "National code must be 10 digits"),
+    .test("valid-national-code", "کدملی شما نامعتبر است", (value) => {
+      return isNationalIdValid(value);
+    })
+    .required("لطفا کد ملی خود را وارد نمایید."),
+  status: yup.boolean().required("Status is required"),
 });
 
-const educationOptions = ["Option 1", "Option 2", "Option 3", "Option 4"];
+const educationOptions = [
+  "زیر دیپلم",
+  "دیپلم",
+  "لیسانس",
+  "فوق لیسانس",
+  "دکتری",
+];
 
-const FormWithValidation: React.FC = () => {
+const CreatePerson = ({ updatePersonsList }: CreatePersonProps) => {
+  const { error, isSuccess, loading, sendRequest } = useApi();
   const {
     handleSubmit,
     control,
@@ -38,24 +54,29 @@ const FormWithValidation: React.FC = () => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: Person) => {
+    await sendRequest("POST", "/api/persons", data);
   };
 
-
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("کاربر جدید با موفقیت ساخته شد");
+      //update list after add new person
+      updatePersonsList();
+    }
+    if (error) {
+      toast.error("متاسفانه خطایی رخ داده است");
+    }
+  }, [error, isSuccess]);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
-        width: "100%",
-      }}
-      px={20}
-    >
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <TableWrapper>
+      {loading && (
+        <BlurOverlayContainer>
+          <Loading />
+        </BlurOverlayContainer>
+      )}
+      <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
         <Box width={"100%"} my={2}>
           <Controller
             name="firstName"
@@ -63,90 +84,118 @@ const FormWithValidation: React.FC = () => {
             defaultValue=""
             render={({ field }) => (
               <div dir="rtl">
-              <TextField
-                {...field}
-                fullWidth
-                label="نام"
-                variant="outlined"
-                error={!!errors.firstName}
-                helperText={errors.firstName?.message}
-              />
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="نام"
+                  variant="outlined"
+                  error={!!errors.firstName}
+                  helperText={errors.firstName?.message}
+                />
               </div>
             )}
           />
         </Box>
-        <Controller
-          name="نام"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="First Name"
-              variant="outlined"
-              error={!!errors.firstName}
-              helperText={errors.firstName?.message}
-            />
-          )}
-        />
-        <br />
-
-        <FormControl variant="outlined" fullWidth error={!!errors.education}>
-          <InputLabel>Education</InputLabel>
+        <Box width={"100%"} my={2}>
           <Controller
-            name="education"
+            name="lastName"
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <Select {...field}>
-                {educationOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Select>
+              <div dir="rtl">
+                <TextField
+                  {...field}
+                  label="نام خانوادگی"
+                  variant="outlined"
+                  fullWidth
+                />
+              </div>
             )}
           />
-          {errors.education && <span>{errors.education.message}</span>}
-        </FormControl>
-        <br />
-
-        <Controller
-          name="nationalCode"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="National Code"
-              variant="outlined"
-              error={!!errors.nationalCode}
-              helperText={errors.nationalCode?.message}
+        </Box>
+        <Box width={"100%"} my={2}>
+          <Controller
+            name="nationalCode"
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <div dir="rtl">
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="کدملی"
+                  variant="outlined"
+                  error={!!errors.nationalCode}
+                  helperText={errors.nationalCode?.message}
+                />
+              </div>
+            )}
+          />
+        </Box>
+        <Box width={"100%"} my={2}>
+          <FormControl variant="outlined" fullWidth error={!!errors.education}>
+            <InputLabel>تحصیلات</InputLabel>
+            <Controller
+              name="education"
+              control={control}
+              defaultValue="لیسانس"
+              render={({ field }) => (
+                <Select {...field}>
+                  {educationOptions.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              )}
             />
-          )}
-        />
-        <br />
+            {errors.education && (
+              <Typography variant="caption" color="error">
+                {errors.education.message}
+              </Typography>
+            )}
+          </FormControl>
+        </Box>
 
-        <FormControl component="fieldset" error={!!errors.status}>
-          <RadioGroup
-            row
+        <Box width={"100%"} my={2} sx={{ display: "flex" }}>
+          <FormLabel sx={{ mt: 1 }} component="legend">
+            وضعیت
+          </FormLabel>
+          <Controller
             name="status"
-            defaultValue="on"
-            onChange={(e) => e.target.value}
-          >
-            <FormControlLabel value="on" control={<Radio />} label="On" />
-            <FormControlLabel value="off" control={<Radio />} label="Off" />
-          </RadioGroup>
-          {errors.status && <span>{errors.status.message}</span>}
-        </FormControl>
-        <br />
+            control={control}
+            defaultValue={true}
+            render={({ field }) => (
+              <RadioGroup
+                {...field}
+                sx={{ mx: "30px", display: "flex", flexDirection: "row" }}
+              >
+                <FormControlLabel
+                  value={true}
+                  control={<Radio />}
+                  label="فعال"
+                />
+                <FormControlLabel
+                  value={false}
+                  control={<Radio />}
+                  label="غیرفعال"
+                />
+              </RadioGroup>
+            )}
+          />
+          {errors.status && <p>{errors.status.message}</p>}
+        </Box>
 
-        <Button type="submit" variant="contained" color="primary">
-          Submit
-        </Button>
+        <CustomButton
+          title="ایجاد کاربر"
+          type="submit"
+          size="large"
+          styles={{width:"100%"}}
+          disabled={Object.keys(errors).length > 0 || loading}
+        />
       </form>
-    </Box>
+    </TableWrapper>
   );
 };
 
-export default FormWithValidation;
+export default CreatePerson;
