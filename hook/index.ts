@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios, { AxiosResponse, AxiosError, Method } from "axios";
+import { FormValues } from "@/types";
 
 // Define a hook for toggle
 type UseToggleReturnType = [boolean, (nextValue?: boolean) => void];
@@ -27,7 +28,7 @@ const useApi = () => {
   const sendRequest = async <T>(
     method: Method,
     url: string,
-    data = null
+    data: FormValues | any = null
   ): Promise<ApiResponse<T>> => {
     setLoading(true);
     setError(null);
@@ -60,6 +61,5 @@ const useApi = () => {
 };
 
 export default useApi;
-
 
 export { useToggle, useApi };
