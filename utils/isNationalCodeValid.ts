@@ -1,64 +1,34 @@
 const isNationalIdValid = (nationalId = "") => {
-  // STEP 0: Validate national Id
-
   // Check length is 10
-  if (nationalId.length < 8 || 10 < nationalId.length) {
-    console.log(false);
+  if (nationalId.length !== 10) {
     return false;
   }
 
   // Check if all of the numbers are the same
-  if (
-    nationalId == "0000000000" ||
-    nationalId == "1111111111" ||
-    nationalId == "2222222222" ||
-    nationalId == "3333333333" ||
-    nationalId == "4444444444" ||
-    nationalId == "5555555555" ||
-    nationalId == "6666666666" ||
-    nationalId == "7777777777" ||
-    nationalId == "8888888888" ||
-    nationalId == "9999999999"
-  ) {
+  if (new Set(nationalId).size === 1) {
     return false;
   }
 
-  // STEP 00 : if nationalId.lenght==8 add two zero on the left
+  // Add leading zeros if nationalId.length < 10
   if (nationalId.length < 10) {
-    let zeroNeeded = 10 - nationalId.length;
-
-    let zeroString = "";
-    if (zeroNeeded == 2) {
-      zeroString = "00";
-    } else {
-      zeroString = "0";
-    }
-
-    nationalId = zeroString.concat(nationalId);
+    nationalId = "0".repeat(10 - nationalId.length) + nationalId;
   }
 
-  // STEP 1: Sum all numbers
-  let sum = 0;
+  // Sum all numbers
+  let sumOfNumbers = 0;
   for (let i = 0; i < 9; i++) {
-    sum += nationalId.charAt(i) * (10 - i);
+    sumOfNumbers += Number(nationalId.charAt(i)) * (10 - i);
   }
 
-  // STEP 2: MOD ON 11
-  let mod = sum % 11;
+  // Perform MOD on 11
+  let modulus = sumOfNumbers % 11;
 
-  // STEP 3: Check with 2
-  let finalValue;
-  if (mod >= 2) {
-    finalValue = 11 - mod;
+  // Check with control value
+  let controlValue = Number(nationalId.charAt(9));
+  if (modulus >= 2) {
+    return controlValue === 11 - modulus;
   } else {
-    finalValue = mod;
-  }
-
-  // STEP 4: Final Step check with control value
-  if (finalValue == nationalId.charAt(9)) {
-    return true;
-  } else {
-    return false;
+    return controlValue === modulus;
   }
 };
 

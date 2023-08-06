@@ -14,9 +14,12 @@ import {
   ButtonWrapper,
   MainWrapper,
 } from "@/styles/styles";
+import axios, { AxiosResponse } from "axios";
+import { GetServerSideProps } from "next";
 
 export default function Home({ personsArray, totalCount }: HomeProps) {
   const [isToggled, toggle] = useToggle(false);
+  const [count, setCount] = useState<number>(totalCount);
   const [persons, setPersons] = useState<Person[]>([...personsArray]);
   const [page, setPage] = useState<number>(1);
   const { error, isSuccess, loading, sendRequest } = useApi();
@@ -24,8 +27,11 @@ export default function Home({ personsArray, totalCount }: HomeProps) {
   const updatePersonsList = async (pageNumber: number = 1) => {
     //close modal before update list
     toggle(false);
-    const res = await sendRequest("GET", `/api/persons?page=${pageNumber}`);
+    // @ts-ignore
+    const res: AxiosResponse<{ personsArray: Person[]; totalCount: number }> =
+      await sendRequest("GET", `/api/persons?page=${pageNumber}`);
     setPersons([...res.data.personsArray]);
+    setCount(res.data.totalCount);
     setPage(pageNumber);
   };
 
@@ -41,7 +47,7 @@ export default function Home({ personsArray, totalCount }: HomeProps) {
       </ButtonWrapper>
       <TableContent persons={persons} page={page} />
       <Pagination
-        count={totalCount}
+        count={count}
         page={page}
         updatePersonsList={updatePersonsList}
       />
@@ -53,13 +59,21 @@ export default function Home({ personsArray, totalCount }: HomeProps) {
 }
 
 //get data on server
-export async function getServerSideProps({ query }: any) {
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const page = Number(query.page) || 1;
 
-  const res = await fetch(`http://localhost:3000/api/persons?page=${page}`);
-  const { personsArray, totalCount } = await res.json();
+  try {
+    const response = await axios.get(
+      `http://localhost:3000/api/persons?page=${page}`
+    );
+    const { personsArray, totalCount } = response.data;
 
-  return {
-    props: { personsArray, totalCount },
-  };
-}
+    return {
+      props: { personsArray, totalCount },
+    };
+  } catch (error) {
+    return {
+      props: { personsArray: [], totalCount: 0 }, // Return empty data in case of an error
+    };
+  }
+};

@@ -18,7 +18,7 @@ import {
 import { isNationalIdValid } from "@/utils/isNationalCodeValid";
 import CustomButton from "../CustomButton";
 import { useApi } from "@/hook";
-import { CreatePersonProps, Person } from "@/types";
+import { CreatePersonProps, FormValues } from "@/types";
 import Loading from "../Loading";
 import { toast } from "react-toastify";
 import { BlurOverlayContainer, TableWrapper } from "@/styles/styles";
@@ -26,6 +26,7 @@ import { BlurOverlayContainer, TableWrapper } from "@/styles/styles";
 // Define validation schema using Yup
 const schema = yup.object().shape({
   firstName: yup.string().required("نام نمی تواند خالی باشد."),
+  lastName: yup.string(),
   education: yup.string().required("تحصیلات نمی تواند خالی باشید"),
   nationalCode: yup
     .string()
@@ -54,7 +55,7 @@ const CreatePerson = ({ updatePersonsList }: CreatePersonProps) => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = async (data: Person) => {
+  const onSubmit = async (data: FormValues) => {
     await sendRequest("POST", "/api/persons", data);
   };
 
@@ -190,7 +191,7 @@ const CreatePerson = ({ updatePersonsList }: CreatePersonProps) => {
           title="ایجاد کاربر"
           type="submit"
           size="large"
-          styles={{width:"100%"}}
+          styles={{ width: "100%" }}
           disabled={Object.keys(errors).length > 0 || loading}
         />
       </form>

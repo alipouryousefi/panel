@@ -16,6 +16,14 @@ export interface Person {
   status: boolean;
 }
 
+export interface FormValues {
+  firstName: string;
+  lastName: string | undefined;
+  education: string;
+  nationalCode: string;
+  status: NonNullable<boolean | undefined>;
+}
+
 export interface CustomButtonProps {
   title: string;
   onClick?: () => void;

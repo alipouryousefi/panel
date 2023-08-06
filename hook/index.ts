@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios, { AxiosResponse, AxiosError, Method } from "axios";
 
 // Define a hook for toggle
-type UseToggleReturnType = [boolean, () => void];
+type UseToggleReturnType = [boolean, (nextValue?: boolean) => void];
 
 const useToggle = (initialState: boolean): UseToggleReturnType => {
   const [state, setState] = useState<boolean>(initialState);
@@ -16,6 +16,7 @@ const useToggle = (initialState: boolean): UseToggleReturnType => {
 };
 
 // Define a hook for sending request
+
 type ApiResponse<T> = AxiosResponse<T> | AxiosError<T>;
 
 const useApi = () => {
@@ -26,7 +27,7 @@ const useApi = () => {
   const sendRequest = async <T>(
     method: Method,
     url: string,
-    data: any = null
+    data = null
   ): Promise<ApiResponse<T>> => {
     setLoading(true);
     setError(null);
@@ -41,7 +42,7 @@ const useApi = () => {
 
       setLoading(false);
       setIsSuccess(true);
-      return response;
+      return { ...response, data: response.data } as ApiResponse<T>;
     } catch (error: any) {
       setLoading(false);
       setError(error.message);
@@ -57,5 +58,8 @@ const useApi = () => {
     sendRequest,
   };
 };
+
+export default useApi;
+
 
 export { useToggle, useApi };
